@@ -1,0 +1,24 @@
+:root{--bg:#1a0f08;--bg2:#3b2311;--ink:#f4e6c6;--mut:#c2a77a;--card:rgba(48,28,14,.8);--line:rgba(212,169,78,.35);--g1:#b8832a;--g2:#e0b24f;--g3:#f6df9c}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;color:var(--ink);font:15px/1.55 system-ui,sans-serif;background:radial-gradient(1000px 500px at 80% -10%,var(--bg2),transparent 70%),var(--bg)}
+header{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:center;padding:14px 26px;border-bottom:1px solid var(--line)}
+.brand{display:flex;gap:10px;align-items:center}.brand b{font:700 26px Georgia,serif}
+.gold{background:linear-gradient(95deg,var(--g1),var(--g3) 50%,var(--g2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.wallet{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.pill{font-size:12px;padding:5px 11px;border:1px solid var(--line);border-radius:99px;color:var(--mut)}
+main{max-width:860px;margin:0 auto;padding:24px 18px 60px}
+.hero{text-align:center;padding:14px 0}.hero h1{font:700 clamp(34px,6vw,56px) Georgia,serif;margin:6px 0}
+.eyebrow{letter-spacing:.3em;font-size:11px;text-transform:uppercase;color:var(--g2)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;margin-top:18px}
+h2{font:600 26px Georgia,serif;margin:0}.sub{color:var(--mut);font-size:13px;margin:2px 0 12px}
+.r{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px}.r input{flex:1;min-width:200px}
+input{width:100%;background:#241309;color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font:inherit}
+button{cursor:pointer;font:600 14px system-ui;border:0;border-radius:10px;padding:10px 18px;color:#2a1608;background:linear-gradient(135deg,var(--g3),var(--g2) 55%,var(--g1))}
+button.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.status{margin-top:14px;padding:12px 16px;border-radius:12px;border:1px solid var(--line);background:var(--card);word-break:break-word}
+.status.err{border-color:#f0707c;color:#f0707c}.status a,.note a{color:var(--g2)}
+.res{margin-top:14px;padding:14px;border:1px solid var(--line);border-radius:12px}
+.badge{display:inline-block;padding:4px 14px;border:2px double currentColor;border-radius:99px;font:700 15px Georgia,serif;letter-spacing:.1em}
+.VERIFIED{color:#e6c25a}.RECALLED{color:#f0707c}.UNKNOWN{color:#a8947c}.INTRANSIT{color:#ef8a4c}
+.res ul{margin:8px 0 0;padding-left:18px;color:var(--mut);font-size:13px}.note{color:var(--mut);font-size:13px;margin-top:20px}
+.res a{color:#e0b24f}

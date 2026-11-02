@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PharmaShield DApp</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.4/ethers.umd.min.js"></script>
+</head><body>
+<header><div class="brand"><svg width="34" height="40" viewBox="0 0 40 46"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f6df9c"/><stop offset=".5" stop-color="#c08a22"/><stop offset="1" stop-color="#6b430c"/></linearGradient></defs><path d="M20 2 36 8v14c0 11-7 19-16 22C11 41 4 33 4 22V8z" fill="url(#g)"/><path d="M20 10v22M12 21h16" stroke="#2a1608" stroke-width="3.2" stroke-linecap="round"/></svg><b class="gold">PharmaShield</b></div>
+<div class="wallet"><span class="pill" id="net">Not connected</span><span class="pill" id="acct">No wallet</span><button id="connect">Connect MetaMask</button></div></header>
+<main>
+<div class="hero"><div class="eyebrow">The Sealed Apothecary Ledger</div><h1 class="gold">Every dose, sealed in provenance.</h1></div>
+<div id="status" class="status" hidden></div>
+
+<section class="card"><h2>Verify a package</h2><p class="sub">Read-only. Works without a wallet.</p>
+<div class="r"><input id="vId" placeholder="Package ID, e.g. PKG-1001" value="PKG-1001"><button id="vBtn">Verify</button></div>
+<div id="vOut"></div></section>
+
+<section class="card"><h2>Register batch &amp; packages</h2><p class="sub">Manufacturer role. Sends one transaction for the batch plus one per package.</p>
+<div class="r"><input id="bId" placeholder="Batch ID" value="BATCH-001"><input id="cert" placeholder="Certificate text (hashed)" value="GMP-CERT-2026"></div>
+<input id="pIds" placeholder="Package IDs, comma separated" value="PKG-1001, PKG-1002"><br><br>
+<button id="regBtn">Register on-chain</button></section>
+
+<section class="card"><h2>Custody</h2><p class="sub">Two-step handover: sender offers, recipient accepts.</p>
+<div class="r"><input id="cId" placeholder="Package ID" value="PKG-1001"><input id="to" placeholder="Recipient wallet 0x…"></div>
+<div class="r"><button id="trBtn">Transfer</button><button id="acBtn" class="ghost">Accept</button><button id="diBtn" class="ghost">Dispense</button></div></section>
+
+<section class="card"><h2>Recall a batch</h2><p class="sub">Recall administrator role.</p>
+<div class="r"><input id="rId" placeholder="Batch ID" value="BATCH-001"><button id="rcBtn" class="ghost">Recall batch</button></div></section>
+<p class="note">Contract: <a id="ctr" target="_blank" rel="noopener"></a></p>
+</main>
+<script src="config.js"></script><script src="app.js"></script>
+</body></html>
