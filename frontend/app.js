@@ -69,25 +69,37 @@ async function run(label, fn) {
   }
 }
 
+async function getLogs(rd, flt) {
+  const latest = await rd.runner.provider.getBlockNumber();
+  let out = [];
+  for (let s = deployBlock; s <= latest; s += 40000) {
+    out = out.concat(await rd.queryFilter(flt, s, Math.min(s + 39999, latest)));
+  }
+  return out;
+}
+
 async function verify() {
   const id = $("#vId").value.trim(); if (!id) return;
   const out = $("#vOut"); out.innerHTML = '<div class="res">Reading the ledger…</div>';
+  const rd = writer ? new ethers.Contract(ADDRESS, ABI, writer.runner.provider) : reader;
   try {
-    const [st, cust, batch] = await reader.verifyPackage(h(id));
+    const [st, cust] = await rd.verifyPackage(h(id));
     const name = STATUS[Number(st)];
-    let hist = [];
-    const f = [["Registered", reader.filters.PackageRegistered(h(id))], ["Transfer offered", reader.filters.TransferInitiated(h(id))],
-      ["Transfer accepted", reader.filters.TransferAccepted(h(id))], ["Dispensed", reader.filters.PackageDispensed(h(id))],
-      ["Suspicious scan reported", reader.filters.SuspiciousScan(h(id))]];
-    for (const [label, flt] of f) {
-      for (const ev of await reader.queryFilter(flt, deployBlock)) hist.push({ label, b: ev.blockNumber, tx: ev.transactionHash });
-    }
-    hist.sort((a, b) => a.b - b.b);
+    let hist = [], warn = "";
+    try {
+      const f = [["Registered", rd.filters.PackageRegistered(h(id))], ["Transfer offered", rd.filters.TransferInitiated(h(id))],
+        ["Transfer accepted", rd.filters.TransferAccepted(h(id))], ["Dispensed", rd.filters.PackageDispensed(h(id))],
+        ["Suspicious scan reported", rd.filters.SuspiciousScan(h(id))]];
+      for (const [label, flt] of f) {
+        for (const ev of await getLogs(rd, flt)) hist.push({ label, b: ev.blockNumber, tx: ev.transactionHash });
+      }
+      hist.sort((a, b) => a.b - b.b);
+    } catch { warn = "<p>History could not be loaded right now.</p>"; }
     const label = name === "UNKNOWN" ? "UNKNOWN" : name === "RECALLED" ? "RECALLED" : (name === "INTRANSIT" ? "INTRANSIT" : "VERIFIED");
     out.innerHTML = `<div class="res"><span class="badge ${label}">${label === "INTRANSIT" ? "IN TRANSIT" : label}</span>
-      <p>On-chain state: <b>${name}</b>${name === "UNKNOWN" ? "" : ` · Custodian: <b>${short(cust)}</b>`}</p>
+      <p>On-chain state: <b>${name}</b>${name === "UNKNOWN" ? "" : ` · Custodian: <b>${short(cust)}</b>`}</p>${warn}
       ${hist.length ? "<ul>" + hist.map((x) => `<li>${esc(x.label)} · block ${x.b} · <a target="_blank" rel="noopener" href="${EXPLORER}/tx/${x.tx}">tx</a></li>`).join("") + "</ul>" : ""}</div>`;
-  } catch (e) { out.innerHTML = `<div class="res">Could not read the contract. Check config.js and your network. ${esc(e.shortMessage || e.message)}</div>`; }
+  } catch (e) { out.innerHTML = `<div class="res">Could not read the contract. ${esc(e.shortMessage || e.message)}</div>`; }
 }
 
 $("#connect").onclick = connect;
