@@ -69,13 +69,25 @@ async function run(label, fn) {
   }
 }
 
-async function getLogs(rd, flt) {
-  const latest = await rd.runner.provider.getBlockNumber();
-  let out = [];
-  for (let s = deployBlock; s <= latest; s += 40000) {
-    out = out.concat(await rd.queryFilter(flt, s, Math.min(s + 39999, latest)));
+const RPCS = ["https://ethereum-sepolia-rpc.publicnode.com", "https://sepolia.drpc.org", "https://rpc.sepolia.org"];
+
+async function getLogs(name, id) {
+  const provs = [];
+  if (writer) provs.push(writer.runner.provider);
+  RPCS.forEach((u) => provs.push(new ethers.JsonRpcProvider(u)));
+  let lastErr;
+  for (const p of provs) {
+    try {
+      const c = new ethers.Contract(ADDRESS, ABI, p);
+      const latest = await p.getBlockNumber();
+      let out = [];
+      for (let s = deployBlock; s <= latest; s += 9000) {
+        out = out.concat(await c.queryFilter(c.filters[name](h(id)), s, Math.min(s + 8999, latest)));
+      }
+      return out;
+    } catch (e) { lastErr = e; }
   }
-  return out;
+  throw lastErr;
 }
 
 async function verify() {
@@ -87,14 +99,13 @@ async function verify() {
     const name = STATUS[Number(st)];
     let hist = [], warn = "";
     try {
-      const f = [["Registered", rd.filters.PackageRegistered(h(id))], ["Transfer offered", rd.filters.TransferInitiated(h(id))],
-        ["Transfer accepted", rd.filters.TransferAccepted(h(id))], ["Dispensed", rd.filters.PackageDispensed(h(id))],
-        ["Suspicious scan reported", rd.filters.SuspiciousScan(h(id))]];
-      for (const [label, flt] of f) {
-        for (const ev of await getLogs(rd, flt)) hist.push({ label, b: ev.blockNumber, tx: ev.transactionHash });
+      const f = [["Registered", "PackageRegistered"], ["Transfer offered", "TransferInitiated"],
+        ["Transfer accepted", "TransferAccepted"], ["Dispensed", "PackageDispensed"], ["Suspicious scan reported", "SuspiciousScan"]];
+      for (const [label, ev] of f) {
+        for (const e of await getLogs(ev, id)) hist.push({ label, b: e.blockNumber, tx: e.transactionHash });
       }
       hist.sort((a, b) => a.b - b.b);
-    } catch { warn = "<p>History could not be loaded right now.</p>"; }
+    } catch (e) { console.error(e); warn = "<p>History could not be loaded right now.</p>"; }
     const label = name === "UNKNOWN" ? "UNKNOWN" : name === "RECALLED" ? "RECALLED" : (name === "INTRANSIT" ? "INTRANSIT" : "VERIFIED");
     out.innerHTML = `<div class="res"><span class="badge ${label}">${label === "INTRANSIT" ? "IN TRANSIT" : label}</span>
       <p>On-chain state: <b>${name}</b>${name === "UNKNOWN" ? "" : ` · Custodian: <b>${short(cust)}</b>`}</p>${warn}
